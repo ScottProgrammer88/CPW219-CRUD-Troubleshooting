@@ -12,66 +12,75 @@ namespace CPW219_CRUD_Troubleshooting.Controllers
             context = dbContext;
         }
 
-        public IActionResult Index()
+        [HttpGet]
+        public async Task<IActionResult> Index()
         {
-            List<Student> products = StudentDb.GetStudents(context);
-            return View();
+            List<Student> students = await StudentDb.GetStudents(context);
+            // check if null
+
+            return View(students);
         }
 
+        [HttpGet]
         public IActionResult Create()
         {
             return View();
         }
 
         [HttpPost]
-        public IActionResult Create(Student p)
+        public async Task<IActionResult> Create(Student p)
         {
             if (ModelState.IsValid)
             {
-                StudentDb.Add(p, context);
-                ViewData["Message"] = $"{p.Name} was added!";
-                return View();
+                await StudentDb.Add(p, context);
+                TempData["Message"] = $"{p.Name} was successfully added!";
+                return RedirectToAction("Index");
             }
 
             //Show web page with errors
             return View(p);
         }
 
+        [HttpGet]
         public IActionResult Edit(int id)
         {
-            //get the product by id
+            //get the student by id
             Student p = StudentDb.GetStudent(context, id);
 
             //show it on web page
-            return View();
+            return View(p);
         }
 
         [HttpPost]
-        public IActionResult Edit(Student p)
+        public async Task<IActionResult> Edit(Student p)
         {
             if (ModelState.IsValid)
             {
-                StudentDb.Update(context, p);
-                ViewData["Message"] = "Product Updated!";
-                return View(p);
+                await StudentDb.Update(context, p);
+                TempData["Message"] = "Student Updated!";
+                return RedirectToAction("Index");
             }
             //return view with errors
             return View(p);
         }
 
-        public IActionResult Delete(int id)
+        [HttpGet]
+        public  async Task<IActionResult> Delete(int id)
         {
             Student p = StudentDb.GetStudent(context, id);
             return View(p);
         }
 
         [HttpPost, ActionName("Delete")]
-        public IActionResult DeleteConfirm(int id)
+        public async Task<IActionResult> DeleteConfirm(int id)
         {
             //Get Product from database
             Student p = StudentDb.GetStudent(context, id);
 
-            StudentDb.Delete(context, p);
+            await StudentDb.Delete(context, p);
+
+            //Show message
+            TempData["Message"] = $"{p.Name} was deleted!";
 
             return RedirectToAction("Index");
         }
